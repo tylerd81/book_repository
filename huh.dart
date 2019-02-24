@@ -6,31 +6,32 @@ class User {
 
 void main() {
   var names = ["tyler", "sarge", "brandi", "morgan"];
-  int count = 2;
-  int start = 0;
+  print(names.contains("tyler"));
+  // int count = 2;
+  // int start = 0;
 
-  if(start + (count - 1) > names.length - 1) {
-    count = names.length - start;
-  }
-  for(String n in names.sublist(start, start + count) ) {
-    print(n);
-  }
-  print("Index: ${names.indexOf("spiderman")}");
+  // if(start + (count - 1) > names.length - 1) {
+  //   count = names.length - start;
+  // }
+  // for(String n in names.sublist(start, start + count) ) {
+  //   print(n);
+  // }
+  // print("Index: ${names.indexOf("spiderman")}");
 
-  var name;
+  // var name;
 
-  User user = User(
-    name: name ?? "Sarge",
-  );
+  // User user = User(
+  //   name: name ?? "Sarge",
+  // );
 
-  print(user.name);
+  // print(user.name);
 
-  var h = <String, List<String>>{};
-  h["names"] = [];
+  // var h = <String, List<String>>{};
+  // h["names"] = [];
 
-  for(String key in h.keys) {
-    print(key);
-  }
+  // for(String key in h.keys) {
+  //   print(key);
+  // }
 
 
 }

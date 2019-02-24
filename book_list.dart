@@ -12,7 +12,7 @@ class BookList extends RepositoryInterface<Book> {
     var currentList = _getList(book.listName);
 
     //create the list if it doesn't exist
-    if(currentList == null && createList == true) {
+    if(currentList == null && createListIfNotExists == true) {
       await createList(book.listName);
       currentList = _getList(book.listName);      
     }
@@ -24,8 +24,8 @@ class BookList extends RepositoryInterface<Book> {
     return true;
   }
 
-  bool delete(Book item, [String listName = "default"]) {
-    var currentList = _getList(listName);
+  Future<bool> delete(Book item) async {
+    var currentList = _getList(item.listName);
     if (currentList != null) {
       return currentList.remove(item);
     } else {
@@ -65,7 +65,12 @@ class BookList extends RepositoryInterface<Book> {
     return currentList.sublist(start, start + count);
   }
 
-  Future<bool> update(Book book, String listName, Map<String, dynamic> fields) async {
+  Future<bool> update(Book book, Map<String, dynamic> fields) async {
+    // Problem: if a book is changed to a different list by chaning
+    // the list name, the original book will still be in the old list.
+    // Also, this book won't be found in the list because it doesn't
+    // exist there yet... so this will fail anyways
+
     Book updatedBook = Book(
       id: fields["id"] ?? book.id,
       author: fields["author"] ?? book.author,
@@ -75,10 +80,10 @@ class BookList extends RepositoryInterface<Book> {
       startedReadingDate:
           fields["startingReadingDate"] ?? book.startedReadingDate,
       lastReadDate: fields["lastReadDate"] ?? book.lastReadDate,
-      listName: fields["listName"] ?? book.listName,
+      listName: book.listName, // don't allow moving books to different list
       imageName: fields["imageName"] ?? book.imageName,
     );
-    var currentList =_getList(listName);
+    var currentList =_getList(book.listName);
     int index = currentList.indexOf(book);
     if(index < 0) {
       return false; // book wasn't found
