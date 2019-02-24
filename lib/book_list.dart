@@ -69,7 +69,7 @@ class BookList extends RepositoryInterface<Book> {
     return currentList.sublist(start, start + count);
   }
 
-  Future<Book> update(Book book, Map<String, dynamic> fields, {insertBook=true}) async {
+  Future<Book> update(Book book, Map<String, dynamic> fields, {bool insertBook=true}) async {
     // Problem: if a book is changed to a different list by changing
     // the list name, the original book will still be in the old list.
     // Also, this book won't be found in the list because it doesn't
@@ -103,7 +103,7 @@ class BookList extends RepositoryInterface<Book> {
     if(!bookLists.containsKey(toListName)) {
       return null;
     }
-    
+
     Book updatedBook = await update(book, {"listName":toListName}, insertBook: false);
     add(updatedBook);
 

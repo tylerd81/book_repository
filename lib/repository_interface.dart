@@ -6,7 +6,7 @@ abstract class RepositoryInterface<T> {
   Future<T> getById(String id);
   Future<List<T>> getAll({String listName="default"}); // get everything
   Future<List<T>> getSome(int start, int count, {String listName="default"});
-  Future<T> update(T item, Map<String, dynamic> fields);
+  Future<T> update(T item, Map<String, dynamic> fields, {bool insertBook});
 
   Future<T> moveToList(T item, String toListName);
 
