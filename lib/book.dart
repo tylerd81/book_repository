@@ -1,5 +1,5 @@
-export "./book_list.dart";
-export "./repository_interface.dart";
+export "package:book_repository/book_list.dart";
+export "package:book_repository/repository_interface.dart";
 
 class Book {
   final String id;

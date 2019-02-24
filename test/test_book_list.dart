@@ -1,5 +1,5 @@
 import "package:test/test.dart";
-import "../book.dart";
+import "package:book_repository/book.dart";
 
 // TODO: create a moveToList method that moves a book from one list to the other
 // implement the deleteList() method which will need to use the moveToList method
@@ -33,13 +33,14 @@ void main() {
     expect(bookListNames[1], equals("favorites"));
   });
 
-  // test("Deleting a list should actually remove the list", () async {
-  //   await repo.deleteList("favorites");
+  test("Deleting a list should actually remove the list", () async {
+    await repo.createList("favorites");
+    await repo.deleteList("favorites");
 
-  //   var bookListNames = await repo.getListNames();
-  //   expect(bookListNames.length, equals(1));
-  //   expect(bookListNames[1], isNullThrownError);
-  // });
+    var bookListNames = await repo.getListNames();
+    expect(bookListNames.contains("favorites"), isFalse);
+    
+  });
 
   test("The default list should start out empty", () async {
     var books = await repo.getAll();
@@ -61,7 +62,7 @@ void main() {
     expect(sciFiBooks.length, equals(1));
   });
 
-  test("Deleting a book from a list should remove it from that list", () async {        
+  test("Deleting a book from a list should remove it from that list", () async {
     var sciFiBooks = await repo.getAll(listName: "Sci Fi");
     var bookToRemove = sciFiBooks[0];
 
@@ -122,5 +123,45 @@ void main() {
 
     var bookList = await repo.getAll(listName: "finished books");
     expect(bookList.length, equals(5));
+  });
+
+  test("Moving a book from one list to another", () async {
+    var book = createBook(title: "Test Book", listName: "currently reading");
+    // create a new list - when moving a book to a different list, the destination
+    // list should already exist.
+    await repo.add(book);
+    await repo.createList("completed books");
+
+    var movedBook = await repo.moveToList(book, "completed books");
+    expect(movedBook, isNotNull);
+    expect(movedBook.listName, equals("completed books"));
+
+    // check that the completed books list has one book in it now
+    var finishedBooks = await repo.getAll(listName: "completed books");
+    expect(finishedBooks.length, equals(1));
+  });
+
+  test("Trying to move a book to a list that doesn't exist should fail", () async {
+    RepositoryInterface cleanRepo = BookList();
+    var book = createBook(title: "Test Book", listName: "currently reading");
+    var movedBook = await cleanRepo.moveToList(book, "my favorites");
+    expect(movedBook, isNull);
+  });
+
+  test("When moving a book from one list to another, the book from the source list is removed", () async  {
+    RepositoryInterface cleanRepo = BookList();
+    var book = createBook(title: "Test Book", listName: "currently reading");
+    // create a new list - when moving a book to a different list, the destination
+    // list should already exist.
+    await cleanRepo.add(book);
+
+    await cleanRepo.createList("completed books");
+    var movedBook = await cleanRepo.moveToList(book, "completed books");
+
+    // check that the book was removed from the currently reading list
+    var currentBooks = await repo.getAll(listName: "currently reading");
+
+    // there was only one book, 
+    expect(currentBooks.length, equals(0));
   });
 }

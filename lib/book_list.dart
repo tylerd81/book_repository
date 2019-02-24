@@ -1,5 +1,5 @@
-import "./book.dart";
-import "./repository_interface.dart";
+import "package:book_repository/book.dart";
+import "package:book_repository/repository_interface.dart";
 
 class BookList extends RepositoryInterface<Book> {
   Map<String, List<Book>> bookLists = {"default": []};
@@ -46,7 +46,11 @@ class BookList extends RepositoryInterface<Book> {
   }
 
   Future<List<Book>> getAll({String listName = "default"}) async {
-    return _getList(listName);
+    if(bookLists.containsKey(listName)) {
+      return _getList(listName);
+    }else{
+      return null;
+    }
   }
 
   Future<List<Book>> getSome(int start, int count,
@@ -65,8 +69,8 @@ class BookList extends RepositoryInterface<Book> {
     return currentList.sublist(start, start + count);
   }
 
-  Future<bool> update(Book book, Map<String, dynamic> fields) async {
-    // Problem: if a book is changed to a different list by chaning
+  Future<Book> update(Book book, Map<String, dynamic> fields, {insertBook=true}) async {
+    // Problem: if a book is changed to a different list by changing
     // the list name, the original book will still be in the old list.
     // Also, this book won't be found in the list because it doesn't
     // exist there yet... so this will fail anyways
@@ -80,21 +84,44 @@ class BookList extends RepositoryInterface<Book> {
       startedReadingDate:
           fields["startingReadingDate"] ?? book.startedReadingDate,
       lastReadDate: fields["lastReadDate"] ?? book.lastReadDate,
-      listName: book.listName, // don't allow moving books to different list
+      listName: fields["listName"] ?? book.listName, 
       imageName: fields["imageName"] ?? book.imageName,
     );
     var currentList =_getList(book.listName);
     int index = currentList.indexOf(book);
     if(index < 0) {
-      return false; // book wasn't found
+      return null; // book wasn't found
     }
-    currentList[index] = updatedBook;
-    return true;
+
+    if(insertBook == true) {
+      currentList[index] = updatedBook;
+    }
+    return updatedBook;
+  }
+
+  Future<Book> moveToList(Book book, String toListName) async {
+    if(!bookLists.containsKey(toListName)) {
+      return null;
+    }
+    
+    Book updatedBook = await update(book, {"listName":toListName}, insertBook: false);
+    add(updatedBook);
+
+    // remove the old book
+    delete(book);
+    return updatedBook;
   }
 
   // // when deleting a list all the items will be moved to the list toList
-  Future<bool> deleteList(String listName, {String toList="default"}) {
-    return Future.value(false);
+  Future<bool> deleteList(String listName, {String toList="default"}) async {
+    if(listName == "default") {
+      return false; // don't allow deleting the default list
+    }
+    
+    if(bookLists.containsKey(listName)) {
+      bookLists.remove(listName);
+    }
+    return true;
   }
 
   Future<List<String>> getListNames() {
