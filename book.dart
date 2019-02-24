@@ -1,3 +1,6 @@
+export "./book_list.dart";
+export "./repository_interface.dart";
+
 class Book {
   final String id;
 
@@ -24,5 +27,4 @@ class Book {
     this.listName = "default",
     this.imageName = "placeholder.jpg",
   });
-  
 }
